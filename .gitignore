@@ -1,0 +1,7 @@
+build/
+protobuf/
+spdlog/
+lib/
+hiredis/
+libwebsockets/
+.vscode/

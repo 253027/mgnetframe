@@ -4,7 +4,7 @@
 #include "singleton.h"
 #include "log.h"
 #include "time-stamp.h"
-#include "../../hiredis-1.3.0/hiredis.h"
+#include <hiredis/include/hiredis.h>
 
 #include <stddef.h>
 #include <cstdint>

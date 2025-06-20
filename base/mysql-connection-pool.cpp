@@ -5,7 +5,6 @@
 #include "eventloop-thread.h"
 #include "log.h"
 #include "macros.h"
-#include "../common/common-macro.h"
 
 #include <fstream>
 
