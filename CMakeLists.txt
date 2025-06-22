@@ -3,6 +3,7 @@ project(mgnetframe)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(ENABLE_DEBUG_MODE ON)
 
 #set all third party lib output dir
 set(LIB_OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib)
@@ -113,6 +114,11 @@ message(STATUS "LIBRARY_OUTPUT_PATH: ${LIBRARY_OUTPUT_PATH}")
 # get all source file
 aux_source_directory(./base BASE_SRC)
 set(FRAME_SRC ${BASE_SRC})
+
+if (ENABLE_DEBUG_MODE)
+    add_definitions(-D_DEBUG)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fsanitize=address")
+endif()
 
 add_library(mgnetframe ${FRAME_SRC})
 add_dependencies(mgnetframe thirdparty_build)
