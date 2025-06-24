@@ -16,7 +16,7 @@ bool mg::HttpPacketParser::reveive(const mg::TcpConnectionPointer con, mg::HttpR
     struct phr_header headers[100];
     size_t method_len, path_len, num_headers;
     num_headers = sizeof(headers) / sizeof(headers[0]);
-    int ret = phr_parse_request(con->_readBuffer.readPeek(), con->_readBuffer.readableBytes(),
+    int ret = phr_parse_request(reinterpret_cast<char *>(con->_readBuffer.readPeek()), con->_readBuffer.readableBytes(),
                                 &method, &method_len, &path, &path_len, &minor_version, headers, &num_headers, 1);
     if (ret < 0)
         return false;

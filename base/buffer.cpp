@@ -13,6 +13,22 @@ mg::Buffer::Buffer(int initialSize)
     ;
 }
 
+mg::Buffer::Buffer(Buffer &&other)
+{
+    this->operator=(std::move(other));
+}
+
+mg::Buffer &mg::Buffer::operator=(Buffer &&other)
+{
+    if (this == &other)
+        return *this;
+    this->_readIndex = other._readIndex;
+    this->_writeIndex = other._writeIndex;
+    this->_buffer = std::move(other._buffer);
+    other.retrieveAll();
+    return *this;
+}
+
 int mg::Buffer::writeableBytes()
 {
     return this->_buffer.size() - this->_writeIndex;
@@ -98,22 +114,22 @@ int mg::Buffer::hasReadBytes()
     return this->_readIndex;
 }
 
-const char *mg::Buffer::readPeek() const
+const u_char *mg::Buffer::readPeek() const
 {
     return this->begin() + this->_readIndex;
 }
 
-char *mg::Buffer::writePeek()
+u_char *mg::Buffer::writePeek()
 {
     return this->begin() + this->_writeIndex;
 }
 
-const char *mg::Buffer::writePeek() const
+const u_char *mg::Buffer::writePeek() const
 {
     return this->begin() + this->_writeIndex;
 }
 
-char *mg::Buffer::readPeek()
+u_char *mg::Buffer::readPeek()
 {
     return this->begin() + this->_readIndex;
 }
@@ -140,7 +156,7 @@ std::string mg::Buffer::retrieveAllAsString()
 std::string mg::Buffer::retrieveAsString(int len)
 {
     assert(len <= this->readableBytes());
-    std::string res(this->readPeek(), len);
+    std::string res(reinterpret_cast<char *>(this->readPeek()), len);
     retrieve(len);
     return res;
 }
@@ -191,12 +207,12 @@ int mg::Buffer::receive(int fd, int &saveError)
     return len;
 }
 
-char *mg::Buffer::begin()
+u_char *mg::Buffer::begin()
 {
     return this->_buffer.data();
 }
 
-const char *mg::Buffer::begin() const
+const u_char *mg::Buffer::begin() const
 {
     return this->_buffer.data();
 }

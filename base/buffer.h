@@ -15,11 +15,15 @@ namespace mg
     public:
         Buffer(int initialSize = _initialSize);
 
+        Buffer(Buffer &&other);
+
+        Buffer &operator=(Buffer &&other);
+
         /**
          * @brief 获取缓冲区中可读数据的起始地址
          */
-        char *readPeek();
-        const char *readPeek() const;
+        u_char *readPeek();
+        const u_char *readPeek() const;
 
         /**
          * @brief 取出缓冲区中所有数据并返回数据
@@ -115,14 +119,14 @@ namespace mg
          * @brief 获取_buffer的地址
          * @return 返回_buffer的首地址指针
          */
-        char *begin();
-        const char *begin() const;
+        u_char *begin();
+        const u_char *begin() const;
 
         /**
          * @brief 获取缓冲区中可写数据的起始地址
          */
-        char *writePeek();
-        const char *writePeek() const;
+        u_char *writePeek();
+        const u_char *writePeek() const;
 
         /**
          * @brief Buffer空间不足时至少分配至给定大小
@@ -140,9 +144,9 @@ namespace mg
          */
         void retrieveAll();
 
-        std::vector<char> _buffer; // 缓冲区
-        uint32_t _readIndex;       // 读取Buffer缓冲数据起始处
-        uint32_t _writeIndex;      // 写入Buffer缓冲数据起始处
+        std::vector<u_char> _buffer; // 缓冲区
+        uint32_t _readIndex;         // 读取Buffer缓冲数据起始处
+        uint32_t _writeIndex;        // 写入Buffer缓冲数据起始处
     };
 };
 
