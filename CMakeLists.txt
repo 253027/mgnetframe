@@ -100,6 +100,8 @@ OPTION(BUILD_SHARED_LIBS "Build shared libraries" ON)
 # dependency include path
 set(INCLUDE_PATH 
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/base
+    ${CMAKE_CURRENT_SOURCE_DIR}/spdlog
     ${CMAKE_CURRENT_SOURCE_DIR}/protobuf/include
     ${CMAKE_CURRENT_SOURCE_DIR}/hiredis
     ${CMAKE_CURRENT_SOURCE_DIR}/libwebsockets/include
@@ -126,3 +128,6 @@ add_dependencies(mgnetframe thirdparty_build)
 # set linked library path
 target_link_directories(mgnetframe PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 target_link_libraries(mgnetframe PUBLIC spdlog mysqlclient protobuf hiredis websockets)
+
+# make test
+add_subdirectory(test)
