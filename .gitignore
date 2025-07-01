@@ -5,3 +5,7 @@ lib/
 hiredis/
 libwebsockets/
 .vscode/
+test/*
+!test/CMakeLists*
+!test/*.h
+!test/*.cpp

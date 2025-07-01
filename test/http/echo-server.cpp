@@ -1,6 +1,9 @@
 #include <sstream>
 #include "http-server.h"
 #include "../base/log.h"
+#include <fstream>
+
+static std::string content;
 
 int main()
 {
@@ -13,9 +16,25 @@ int main()
                               {
                                   mg::http::HttpResponse response;
                                   response.setStatus(mg::http::HttpStatus::OK);
-                                  response.setBody("hello world");
+                                  response.setHeader("Content-Type", "text/html");
+                                  response.setBody(content);
                                   link->send(response); //
                               });
+
+    server.setConnectionCallback([](const mg::HttpConnectionPointer &link)
+                                 {
+                                     if (link->connected())
+                                         LOG_DEBUG("[{}] connected", link->name());
+                                     else
+                                         LOG_DEBUG("[{}] disconnected", link->name()); //
+                                 });
+
+    std::fstream file("./index.html");
+    if (file.is_open())
+    {
+        content = std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+        file.close();
+    }
 
     server.start();
     loop.loop();
