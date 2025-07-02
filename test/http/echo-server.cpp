@@ -29,6 +29,11 @@ int main()
                                          LOG_DEBUG("[{}] disconnected", link->name()); //
                                  });
 
+    server.setWriteCompleteCallback([](const mg::HttpConnectionPointer &link)
+                                    {
+                                        LOG_DEBUG("{} write complete", link->name()); //
+                                    });
+
     std::fstream file("./index.html");
     if (file.is_open())
     {
