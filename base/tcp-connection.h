@@ -60,8 +60,8 @@ namespace mg
          * @brief TcpServer接受到新连接需要处理的逻辑，这里放在TcpConnection类中，
          *        因为一个连接的建立与销毁的操作只与该链接有关
          */
-        void connectionEstablished();
-        void connectionDestoryed();
+        virtual void connectionEstablished();
+        virtual void connectionDestoryed();
 
         /**
          * @brief 设置用户自定义连接状态
@@ -108,7 +108,7 @@ namespace mg
         friend class TcpPacketParser;
         friend class HttpPacketParser;
 
-    private:
+    protected:
         enum State
         {
             DISCONNECTED = 1, // 已经断开连接
@@ -127,17 +127,17 @@ namespace mg
         /**
          * @brief 套接口连接关闭事件
          */
-        void handleClose();
+        virtual void handleClose();
 
         /**
          * @brief 处理连接错误事件
          */
-        void handleError();
+        virtual void handleError();
 
         /**
          * @brief 处理连接写事件
          */
-        void handleWrite();
+        virtual void handleWrite();
 
         /**
          * @brief 在所属的loop中关闭连接
@@ -166,6 +166,16 @@ namespace mg
          * @brief 清除无效定时器
          */
         void recycleClear();
+
+        /**
+         * @brief 自定义的拆包逻辑
+         */
+        virtual void onRead(TimeStamp time);
+
+        /**
+         * @brief 写操作完成时的回调
+         */
+        virtual void onWriteComplete();
 
         int _highWaterMark;                                           // 高水位阈值
         EventLoop *_loop;                                             // 所属的事件循环

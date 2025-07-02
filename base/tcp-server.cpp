@@ -102,16 +102,9 @@ void mg::TcpServer::acceptorCallback(int fd, const InternetAddress &peerAddress)
         LOG_ERROR("{} get local address failed", this->_name);
         return;
     }
-
     InternetAddress localAddress(local);
-    TcpConnectionPointer connection = std::make_shared<TcpConnection>(loop, connectionName, fd, localAddress, peerAddress);
-    connection->setConnectionCallback(this->_connectionCallback);
-    connection->setMessageCallback(this->_messgageDataCallback);
-    connection->setWriteCompleteCallback(this->_writeCompleteCallback);
-    connection->setCloseCallback(std::bind(&TcpServer::removeConnection, this, std::placeholders::_1));
-    this->_connectionMemo[connectionName] = connection;
 
-    loop->run(std::bind(&TcpConnection::connectionEstablished, connection.get()));
+    this->handleNewConnection(loop, connectionName, fd, localAddress, peerAddress);
 }
 
 void mg::TcpServer::removeConnection(const TcpConnectionPointer &connection)
@@ -131,4 +124,18 @@ void mg::TcpServer::removeConnectionCallBack(const TcpConnectionPointer &connect
         但当eventloop执行doPendingFunctions时这个tcp连接的计数必定是0已经被析构掉了。
         此时再调用tcp连接的方法就会出现 "heap use after free" 错误
      */
+}
+
+void mg::TcpServer::handleNewConnection(EventLoop *loop, const std::string &name, int fd,
+                                        const mg::InternetAddress &local,
+                                        const mg::InternetAddress &peer)
+{
+    TcpConnectionPointer connection = std::make_shared<TcpConnection>(loop, name, fd, local, peer);
+    connection->setConnectionCallback(this->_connectionCallback);
+    connection->setMessageCallback(this->_messgageDataCallback);
+    connection->setWriteCompleteCallback(this->_writeCompleteCallback);
+    connection->setCloseCallback(std::bind(&TcpServer::removeConnection, this, std::placeholders::_1));
+    this->_connectionMemo[name] = connection;
+
+    loop->run(std::bind(&TcpConnection::connectionEstablished, connection.get()));
 }

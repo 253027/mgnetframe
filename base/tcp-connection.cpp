@@ -198,15 +198,12 @@ void mg::TcpConnection::handleRead(TimeStamp time)
     int len = this->_readBuffer.receive(this->_channel->fd(), saveErrno);
     if (len > 0)
     {
-        if (this->_readBuffer.readableBytes() > this->_maxReadBufferSize)
+        if (this->_channel->isReading() && (this->_readBuffer.readableBytes() > this->_maxReadBufferSize))
             this->stopReadInLoop();
 
-        if (this->_messageCallback)
-            this->_messageCallback(shared_from_this(), &this->_readBuffer, time);
-        else
-            LOG_ERROR("{} _messageCallback not initialized", this->_name);
+        this->onRead(time);
 
-        if (this->_readBuffer.readableBytes() < this->_maxReadBufferSize)
+        if (!this->_channel->isReading() && (this->_readBuffer.readableBytes() < this->_maxReadBufferSize))
             this->startReadInLoop();
     }
     else if (len == 0)
@@ -258,8 +255,9 @@ void mg::TcpConnection::handleWrite()
             if (_sendBuffer.readableBytes() == 0)
             {
                 _channel->disableWriting(); // 取消写事件
-                if (_writeCompleteCallback)
-                    _loop->push(std::bind(_writeCompleteCallback, shared_from_this()));
+
+                this->onWriteComplete();
+
                 if (_state == DISCONNECTING)
                     this->shutDownInOwnerLoop();
             }
@@ -294,8 +292,8 @@ void mg::TcpConnection::sendInOwnerLoop(const void *data, int len)
         if (hasWrite >= 0)
         {
             remain = len - hasWrite;
-            if (!remain && _writeCompleteCallback)
-                _loop->push(std::bind(_writeCompleteCallback, shared_from_this()));
+            if (remain == 0)
+                this->onWriteComplete();
         }
         else
         {
@@ -361,4 +359,18 @@ void mg::TcpConnection::recycleClear()
     for (int i = 0; i < memo.size(); i++, len--)
         std::swap(this->_timerIds[len], this->_timerIds[memo[i]]);
     this->_timerIds.resize(len + 1);
+}
+
+void mg::TcpConnection::onRead(TimeStamp time)
+{
+    if (this->_messageCallback)
+        this->_messageCallback(shared_from_this(), &this->_readBuffer, time);
+    else
+        LOG_ERROR("{} _messageCallback not initialized", this->_name);
+}
+
+void mg::TcpConnection::onWriteComplete()
+{
+    if (_writeCompleteCallback)
+        _loop->push(std::bind(_writeCompleteCallback, shared_from_this()));
 }

@@ -18,7 +18,8 @@ namespace mg
     public:
         using ThreadInitialCallBack = std::function<void(EventLoop *)>;
 
-        TcpServer(EventLoop *loop, const InternetAddress &listenAddress, const std::string &name, int domain = IPV4_DOMAIN, int type = TCP_SOCKET);
+        TcpServer(EventLoop *loop, const InternetAddress &listenAddress,
+                  const std::string &name, int domain = IPV4_DOMAIN, int type = TCP_SOCKET);
 
         ~TcpServer();
 
@@ -76,7 +77,7 @@ namespace mg
          */
         uint16_t getPort();
 
-    private:
+    protected:
         /**
          * @brief acceptor类需要的回调函数
          */
@@ -91,6 +92,13 @@ namespace mg
          * @brief 移除连接时需要_loop执行的函数
          */
         void removeConnectionCallBack(const TcpConnectionPointer &connection);
+
+        /**
+         * @brief 连接到来时具体的处理逻辑
+         */
+        virtual void handleNewConnection(EventLoop *loop, const std::string &name, int fd,
+                                         const mg::InternetAddress &local,
+                                         const mg::InternetAddress &peer);
 
         bool _isStarted;                                                                 // 是否启动
         std::string _name;                                                               // 服务器的名称
